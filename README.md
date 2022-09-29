@@ -1,2 +1,2 @@
-# robodog
-ZHAW Projektarbeit Robodog
+# PA Robodog
+Project Thesis Robodog at Zürich University of Applied Science
