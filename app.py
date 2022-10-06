@@ -20,6 +20,8 @@ min_tracking_confidence = 0.5
 # model
 model_confidence = 0.5
 model_path = ''
+
+# development mode
 data_path = 'data/data.csv'
 dev_mode = True
 
