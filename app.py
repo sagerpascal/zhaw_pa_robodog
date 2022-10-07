@@ -53,7 +53,7 @@ label = -1
 label_count = 1
 
 while cap.isOpened():
-    # capture image process for mediapipe
+    # capture image 
     success, image = cap.read()
     if not success:
         print("Ignoring empty camera frame.")
@@ -86,10 +86,10 @@ while cap.isOpened():
                 landmarks = process_landmarks(hand_landmarks)
                 if len(land_q) == land_q.maxlen:
                     write_csv(label, list(land_q), data_path)
-                    label_count += 1
-                    label = -1
                     land_q.clear()
                     print(f'done_saving {label_count}st label with id {label}')
+                    label_count += 1
+                    label = -1
                 else:
                     land_q.append(landmarks)
 
