@@ -9,7 +9,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
-# app constants ####################################################################################
+# app constants ################################################################
 
 # mediapipe
 model_complexity = 0
@@ -31,11 +31,11 @@ cap_flip = True
 cap_source = 0  # 0 == default device
 
 
-# video capture ####################################################################################
+# video capture ################################################################
 
 cap = cv2.VideoCapture(cap_source)
 
-# mediapipe ########################################################################################
+# mediapipe ####################################################################
 
 hands = mp_hands.Hands(
     model_complexity=model_complexity,
@@ -44,16 +44,16 @@ hands = mp_hands.Hands(
     max_num_hands=max_num_hands
 )
 
-# landmarks queue ##################################################################################
+# landmarks queue ##############################################################
 
 land_q = deque(maxlen=32)
 
-# ml model #########################################################################################
+# ml model #####################################################################
 
 model = joblib.load(model_path)
 labels = read_labels(labels_path)
 
-# app ##############################################################################################
+# app ##########################################################################
 
 label = -1
 label_count = 1
@@ -106,10 +106,18 @@ while cap.isOpened():
                 idx = np.argmax(predict_result)
                 gesture, confidence = labels[idx], predict_result[idx]
                 if confidence >= min_model_confidence:
-                    cv2.putText(image, f'Gesture: {labels[idx]}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 4, cv2.LINE_AA)
-                    cv2.putText(image, f'Gesture: {labels[idx]}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv2.LINE_AA)
-                    cv2.putText(image, f'Confidence: {confidence:.3f}', (10, 65), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 4, cv2.LINE_AA)
-                    cv2.putText(image, f'Confidence: {confidence:.3f}', (10, 65), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv2.LINE_AA)
+                    cv2.putText(
+                        image, f'Gesture: {labels[idx]}', (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0),
+                        4, cv2.LINE_AA)
+                    cv2.putText(
+                        image, f'Gesture: {labels[idx]}', (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255),
+                        2, cv2.LINE_AA)
+                    cv2.putText(image, f'Confidence: {confidence:.3f}', (10, 65),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 4, cv2.LINE_AA)
+                    cv2.putText(image, f'Confidence: {confidence:.3f}', (10, 65),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv2.LINE_AA)
 
             # draw hands
             mp_drawing.draw_landmarks(
