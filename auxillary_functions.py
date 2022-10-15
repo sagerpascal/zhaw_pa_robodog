@@ -2,6 +2,7 @@ from sklearn.preprocessing import normalize
 import numpy as np
 from itertools import chain
 import csv
+import re
 
 
 def process_landmarks(landmarks):
@@ -9,6 +10,11 @@ def process_landmarks(landmarks):
     tmp_marks = np.array(list(chain.from_iterable(tmp_marks)))
     tmp_marks = normalize(tmp_marks.reshape(1, -1)).flatten()
     return tmp_marks
+
+def read_labels(labels_path):
+    with open(labels_path, 'r') as f:
+        data = f.readlines()
+        return np.array([ re.findall(r'[a-z]+_?[a-z]+', line) for line in data]).flatten()
 
 
 def write_csv(label, landmark_list, csv_path):

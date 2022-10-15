@@ -1,10 +1,9 @@
 from collections import deque
 import cv2
 import mediapipe as mp
-import itertools
-import copy
+import numpy as np
 
-from auxillary_functions import process_landmarks, write_csv
+from auxillary_functions import process_landmarks, write_csv, read_labels
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
@@ -19,7 +18,8 @@ min_tracking_confidence = 0.5
 
 # model
 model_confidence = 0.5
-model_path = ''
+model_path = './model/model.joblib'
+labels_path = './data/labels.txt'
 
 # development mode
 data_path = 'data/data.csv'
@@ -46,6 +46,12 @@ hands = mp_hands.Hands(
 # landmarks queue ##################################################################################
 
 land_q = deque(maxlen=32)
+
+# ml model #########################################################################################
+
+import joblib
+model = joblib.load(model_path)
+labels = read_labels(labels_path)
 
 # app ##############################################################################################
 
@@ -81,17 +87,25 @@ while cap.isOpened():
         for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
                                               results.multi_handedness):
 
+            # process hand landmarks
+            landmarks = process_landmarks(hand_landmarks)
+            land_q.append(landmarks)
+
             # process landmarks and save to CSV when in dev_mode
             if dev_mode and label != -1:
-                landmarks = process_landmarks(hand_landmarks)
                 if len(land_q) == land_q.maxlen:
                     write_csv(label, list(land_q), data_path)
                     land_q.clear()
                     print(f'done_saving {label_count}st label with id {label}')
                     label_count += 1
                     label = -1
-                else:
-                    land_q.append(landmarks)
+
+            # predict gesture using model
+            if len(land_q) == land_q.maxlen:
+                print(np.array(land_q).flatten().shape)
+                print(np.array(land_q).flatten().reshape(1, -1).shape)
+                gesture = np.argmax(model.predict(np.array(land_q).flatten().reshape(1, -1)))
+                print(f'prob: {gesture}\ngest: {labels[gesture]}')
 
             # draw hands
             mp_drawing.draw_landmarks(
