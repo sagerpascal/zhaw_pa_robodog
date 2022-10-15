@@ -106,6 +106,7 @@ while cap.isOpened():
                 idx = np.argmax(predict_result)
                 gesture, confidence = labels[idx], predict_result[idx]
                 if confidence >= min_model_confidence:
+                    # print text to image
                     cv2.putText(
                         image, f'Gesture: {labels[idx]}', (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0),
