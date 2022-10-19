@@ -9,11 +9,11 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
-# app constants ################################################################
+# app constants ########################################################################################################
 
 # mediapipe
 model_complexity = 0
-max_num_hands = 2
+max_num_hands = 1
 min_detection_confidence = 0.5
 min_tracking_confidence = 0.5
 
@@ -31,11 +31,11 @@ cap_flip = True
 cap_source = 0  # 0 == default device
 
 
-# video capture ################################################################
+# video capture ########################################################################################################
 
 cap = cv2.VideoCapture(cap_source)
 
-# mediapipe ####################################################################
+# mediapipe ############################################################################################################
 
 hands = mp_hands.Hands(
     model_complexity=model_complexity,
@@ -44,16 +44,16 @@ hands = mp_hands.Hands(
     max_num_hands=max_num_hands
 )
 
-# landmarks queue ##############################################################
+# landmarks queue ######################################################################################################
 
 land_q = deque(maxlen=32)
 
-# ml model #####################################################################
+# ml model #############################################################################################################
 
 model = joblib.load(model_path)
 labels = read_labels(labels_path)
 
-# app ##########################################################################
+# app ##################################################################################################################
 
 label = -1
 label_count = 1
@@ -101,7 +101,7 @@ while cap.isOpened():
                     label = -1
 
             # predict gesture using model
-            if len(land_q) == land_q.maxlen:
+            if not dev_mode and len(land_q) == land_q.maxlen:
                 predict_result = np.squeeze(model.predict_proba(np.array(land_q).reshape(1, -1)))
                 idx = np.argmax(predict_result)
                 gesture, confidence = labels[idx], predict_result[idx]
