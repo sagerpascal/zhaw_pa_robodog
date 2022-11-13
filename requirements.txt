@@ -95,4 +95,5 @@ wcwidth==0.2.5
 Werkzeug==2.2.2
 wrapt==1.14.1
 zipp==3.8.1
-customtkinter~=4.6.3
+PyQt5~=5.15.7
+paramiko~=2.12.0
