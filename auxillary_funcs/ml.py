@@ -5,11 +5,17 @@ import csv
 import re
 
 
-def process_landmarks(landmarks):
+def preprocess_landmarks(landmarks):
     tmp_marks = map(lambda l: (l.x, l.y, l.z), landmarks.landmark)
     tmp_marks = np.array(list(chain.from_iterable(tmp_marks)))
     bla = normalize(tmp_marks.reshape(1, -1)).flatten()
     return tmp_marks
+
+
+def get_nearest_hand(landmarks_lst):
+    mapped = list(map(lambda h: h.landmark[0].z, landmarks_lst))
+    idx = np.argmin(mapped)
+    return landmarks_lst[idx]
 
 
 def read_labels(labels_path):

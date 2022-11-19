@@ -4,11 +4,14 @@ from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog, QApplication, QStackedWidget, QWidget
 import subprocess  # For executing a shell command
 
+ui_startwindow = 'ui/start_window.ui'
+ui_control_window = 'ui/control_window.ui'
+
 
 class StartScreen(QDialog):
     def __init__(self):
         super(StartScreen, self).__init__()
-        loadUi("start_window.ui", self)
+        loadUi(ui_startwindow, self)
         self.connectButton.clicked.connect(self.go_to_control)
         self.exitButton.clicked.connect(self.close_app)
 
@@ -32,7 +35,7 @@ class StartScreen(QDialog):
 class ControlScreen(QDialog):
     def __init__(self):
         super(ControlScreen, self).__init__()
-        loadUi("control_window.ui", self)
+        loadUi(ui_control_window, self)
 
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"

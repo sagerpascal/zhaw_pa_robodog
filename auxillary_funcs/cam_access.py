@@ -5,9 +5,8 @@ cap = cv2.VideoCapture('http://192.168.123.12:8080/?action=stream')
 
 while(True):
     ret, frame = cap.read()
-    cv2.imshow('frame',frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    cv2.imshow('frame', frame)
+    if cv2.waitKey(10) == 27:  # esc
+        cv2.destroyAllWindows()
+        cap.release()
         break
-
-cap.release()
-cv2.destroyAllWindows()
