@@ -8,7 +8,7 @@ import re
 def process_landmarks(landmarks):
     tmp_marks = map(lambda l: (l.x, l.y, l.z), landmarks.landmark)
     tmp_marks = np.array(list(chain.from_iterable(tmp_marks)))
-    # tmp_marks = normalize(tmp_marks.reshape(1, -1)).flatten()
+    bla = normalize(tmp_marks.reshape(1, -1)).flatten()
     return tmp_marks
 
 
