@@ -1,27 +1,42 @@
-import paramiko, re, time
+from invoke import Responder
+from fabric import Connection, Config
+from time import sleep
+import multiprocessing
 
-command = "df"
+sudopass = Responder(
+    pattern=r'\[sudo\] password for unitree:',
+    response='123\n')
 
-# Update the next three lines with your
-# server's information
 
-host = "192.168.123.12"
-username = "unitree"
-password = "123"
-command = "sudo ./walk.sh"
+def ssh_connect():
+    c = Connection(host='192.168.123.12', user='unitree', connect_kwargs={"password": "123"})
+    return c
 
-client = paramiko.client.SSHClient()
-client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-client.connect(host, username=username, password=password)
 
-channel = client.invoke_shell()
-channel.send(command)
-# wait for prompt
-while not re.search(".*\[sudo\].*",channel.recv(1024)): time.sleep(1)
-channel.send("%s\n" % password)
+def execute_command(connection, command):
+    cmd = switch(command)
+    connection.run(cmd, pty=True, watchers=[sudopass])
 
-'''
-_stdin, _stdout,_stderr = client.exec_command("df")
-print(_stdout.read().decode())
-client.close()
-'''
+
+def switch(cmd):
+    # TODO: switch with class Command later.
+    if cmd == 'walk':
+        return 'sudo ./walk.sh'
+    if cmd == 'dance1':
+        return 'ls'
+
+
+# TODO: run "sit" command seperately in a  loop
+c = ssh_connect()
+process = multiprocessing.Process(target=execute_command, args=(c, "walk"))
+process.start()
+
+# TODO; implement while loop with global variable
+sleep(10)
+process.terminate()
+
+
+class Command:
+    def __init__(self, cmd, duration):
+        self.cmd = cmd
+        self.duration = duration

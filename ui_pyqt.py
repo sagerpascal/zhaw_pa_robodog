@@ -36,6 +36,14 @@ class ControlScreen(QDialog):
     def __init__(self):
         super(ControlScreen, self).__init__()
         loadUi(ui_control_window, self)
+        self.activateButton.clicked.connect(self.start_recognition)
+        self.stopButton.clicked.connect(self.stop_recognition)
+
+    def start_recognition(self):
+        self.recognitionLabel.setText("Gesture Recognition is on")
+
+    def stop_recognition(self):
+        self.recognitionLabel.setText("Gesture Recognition is off")
 
 
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
