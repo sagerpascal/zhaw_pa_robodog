@@ -3,38 +3,39 @@ from fabric import Connection, Config
 from time import sleep
 import multiprocessing
 
-process = None
 
+COMMAND_SIT = 'sudo ./sit.sh'
+COMMAND_WALK = 'sudo ./walk.sh'
 
-def pull_up(func):
-    def wrapped_func(*args, **kwargs):
-        global process
-        process.terminate()
-        sleep(2)
-        func(*args, **kwargs)
-        sleep(2)
-        process = multiprocessing.Process(target=execute_command, args=(ssh_connect(), "walk"))
-        process.start()
-    return wrapped_func
+_process = None
 
-
-sudopass = Responder(
+_sudopass = Responder(
     pattern=r'\[sudo\] password for unitree:',
     response='123\n')
 
+commands_dict = {
+    'sit': COMMAND_SIT,
+    'walk': COMMAND_WALK,
+}
 
-def ssh_connect():
+def __ssh_connect__():
     c = Connection(host='192.168.123.12', user='unitree', connect_kwargs={"password": "123"})
     return c
 
+def sit():
+    global _process
+    _process = multiprocessing.Process(target=lambda: __ssh_connect__().run(COMMAND_SIT, pty=True, watchers=[_sudopass]))
+    _process.start()
 
 def execute_command(connection, command):
-    cmd = switch(command)
-    connection.run(cmd, pty=True, watchers=[sudopass])
+        global _process
+        _process.terminate()
+        sleep(2)
+        connection.run(command, pty=True, watchers=[_sudopass])
+        sleep(2)
+        _process = multiprocessing.Process(target=execute_command, args=(__ssh_connect__(), "walk"))
+        _process.start()
 
-@pull_up
-def play_dead():
-    print('bla')
 
 def switch(cmd):
     # TODO: switch with class Command later.
@@ -42,19 +43,3 @@ def switch(cmd):
         return 'sudo ./walk.sh'
     if cmd == 'dance1':
         return 'sudo ./dance1.sh'
-
-
-# TODO: run "sit" command seperately in a  loop
-c = ssh_connect()
-process = multiprocessing.Process(target=execute_command, args=(c, "walk"))
-process.start()
-
-# TODO; implement while loop with global variable
-sleep(10)
-process.terminate()
-
-
-class Command:
-    def __init__(self, cmd, duration):
-        self.cmd = cmd
-        self.duration = duration
