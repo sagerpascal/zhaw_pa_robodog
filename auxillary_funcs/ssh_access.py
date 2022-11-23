@@ -23,7 +23,7 @@ def switch(cmd):
     if cmd == 'walk':
         return 'sudo ./walk.sh'
     if cmd == 'dance1':
-        return 'ls'
+        return 'sudo ./dance1.sh'
 
 
 # TODO: run "sit" command seperately in a  loop
