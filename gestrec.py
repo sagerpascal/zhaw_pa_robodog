@@ -4,7 +4,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-from auxillary_funcs.ml import get_nearest_hand, preprocess_landmarks, write_csv, read_labels
+from auxillary_funcs.ml import get_nearest_hand, preprocess_landmarks, write_csv, read_labels, bounding_rect
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
@@ -41,6 +41,7 @@ hands = mp_hands.Hands(
     model_complexity=model_complexity,
     min_detection_confidence=min_detection_confidence,
     min_tracking_confidence=min_tracking_confidence,
+    max_num_hands=100,
 )
 
 # landmarks queue ######################################################################################################
@@ -123,12 +124,21 @@ while cap.isOpened():
                             cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv2.LINE_AA)
 
         # draw hands
-        mp_drawing.draw_landmarks(
-            image,
-            hand_landmarks,
-            mp_hands.HAND_CONNECTIONS,
-            mp_drawing_styles.get_default_hand_landmarks_style(),
-            mp_drawing_styles.get_default_hand_connections_style())
+        for hand_landmarks in results.multi_hand_landmarks:
+            mp_drawing.draw_landmarks(
+                image,
+                hand_landmarks,
+                mp_hands.HAND_CONNECTIONS,
+                mp_drawing_styles.get_default_hand_landmarks_style(),
+                mp_drawing_styles.get_default_hand_connections_style())
+
+        # draw boundingbox
+        x, y, w, h = bounding_rect(image, hand_landmarks)
+        cv2.rectangle(image, (x,y), (w,h), (0, 0, 255), 1)
+        cv2.rectangle(image, (x,y), (w,y-22), (0, 0, 255), -1)
+        cv2.putText(image, 'Tracking', (x + 5, y - 4),
+               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
+
 
     # show capture
     cv2.imshow('MediaPipe Hands', image)
