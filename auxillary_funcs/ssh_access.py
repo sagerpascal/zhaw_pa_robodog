@@ -3,6 +3,21 @@ from fabric import Connection, Config
 from time import sleep
 import multiprocessing
 
+process = None
+
+
+def pull_up(func):
+    def wrapped_func(*args, **kwargs):
+        global process
+        process.terminate()
+        sleep(2)
+        func(*args, **kwargs)
+        sleep(2)
+        process = multiprocessing.Process(target=execute_command, args=(ssh_connect(), "walk"))
+        process.start()
+    return wrapped_func
+
+
 sudopass = Responder(
     pattern=r'\[sudo\] password for unitree:',
     response='123\n')
@@ -17,6 +32,9 @@ def execute_command(connection, command):
     cmd = switch(command)
     connection.run(cmd, pty=True, watchers=[sudopass])
 
+@pull_up
+def play_dead():
+    print('bla')
 
 def switch(cmd):
     # TODO: switch with class Command later.
