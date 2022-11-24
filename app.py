@@ -2,7 +2,11 @@ import os
 import sys
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog, QApplication, QStackedWidget, QWidget
-import subprocess  # For executing a shell command
+from auxillary_funcs.ssh_access import check_connection
+from gestrec import Gestrec
+from auxillary_funcs.interprocess_comms import get_conn_client, MSG_GESTREC_OFF, MSG_GESTREC_ON, DEFAULTPORT
+
+from time import sleep
 
 ui_startwindow = 'ui/start_window.ui'
 ui_control_window = 'ui/control_window.ui'
@@ -16,7 +20,7 @@ class StartScreen(QDialog):
         self.exitButton.clicked.connect(self.close_app)
 
     def go_to_control(self):
-        if self.check_connection():
+        if check_connection():
             control = ControlScreen()
             widget.addWidget(control)
             # ToDo: Implement connectivity check with robot. If it fails: Show label with error.
@@ -27,10 +31,6 @@ class StartScreen(QDialog):
     def close_app(self):
         sys.exit()
 
-    def check_connection(self):
-        command = ['ping', '-c', '1', '192.168.123.12']
-        return subprocess.call(command) == 0
-
 
 class ControlScreen(QDialog):
     def __init__(self):
@@ -38,24 +38,39 @@ class ControlScreen(QDialog):
         loadUi(ui_control_window, self)
         self.activateButton.clicked.connect(self.start_recognition)
         self.stopButton.clicked.connect(self.stop_recognition)
+        self.exitButton.clicked.connect(self.close_app)
+        self.gestrec = Gestrec()
+        self.gestrec.start()
 
     def start_recognition(self):
-        self.recognitionLabel.setText("Gesture Recognition is on")
+        self.gestrec.gestrec_on()
+        self.recognitionLabel.setText("Gesture Recognition: on ")
 
     def stop_recognition(self):
-        self.recognitionLabel.setText("Gesture Recognition is off")
+        self.gestrec.gestrec_off()
+        self.recognitionLabel.setText("Gesture Recognition: off")
+
+    def close_app(self):
+        self.gestrec.stop()
+        sys.exit()
 
 
-os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-app = QApplication(sys.argv)
-start = StartScreen()
-widget = QStackedWidget()
-widget.addWidget(start)
-widget.setFixedHeight(419)
-widget.setFixedWidth(698)
-widget.show()
+def start_ui():
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    app = QApplication(sys.argv)
+    # start = StartScreen()
+    start = ControlScreen()
+    widget = QStackedWidget()
+    widget.addWidget(start)
+    widget.setFixedHeight(419)
+    widget.setFixedWidth(698)
+    widget.show()
 
-try:
-    sys.exit(app.exec())
-except:
-    print("Exiting")
+    try:
+        sys.exit(app.exec())
+    except:
+        print("Exiting")
+
+
+if __name__ == '__main__':
+    start_ui()

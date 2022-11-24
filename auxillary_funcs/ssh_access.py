@@ -2,6 +2,7 @@ from invoke import Responder
 from fabric import Connection, Config
 from time import sleep
 import multiprocessing
+import subprocess
 
 
 COMMAND_SIT = 'sudo ./sit.sh'
@@ -13,10 +14,16 @@ _sudopass = Responder(
     pattern=r'\[sudo\] password for unitree:',
     response='123\n')
 
+
 commands_dict = {
     'sit': COMMAND_SIT,
     'walk': COMMAND_WALK,
 }
+
+
+def check_connection():
+    command = ['ping', '-c', '1', '192.168.123.12']
+    return subprocess.call(command) == 0
 
 
 def get_ssh_connection():
