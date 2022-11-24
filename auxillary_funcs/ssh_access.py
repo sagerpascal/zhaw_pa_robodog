@@ -18,23 +18,27 @@ commands_dict = {
     'walk': COMMAND_WALK,
 }
 
-def __ssh_connect__():
+
+def get_ssh_connection():
     c = Connection(host='192.168.123.12', user='unitree', connect_kwargs={"password": "123"})
     return c
 
+
 def sit():
     global _process
-    _process = multiprocessing.Process(target=lambda: __ssh_connect__().run(COMMAND_SIT, pty=True, watchers=[_sudopass]))
+    _process = multiprocessing.Process(target=lambda: get_ssh_connection().run(
+        COMMAND_SIT, pty=True, watchers=[_sudopass]))
     _process.start()
 
+
 def execute_command(connection, command):
-        global _process
-        _process.terminate()
-        sleep(2)
-        connection.run(command, pty=True, watchers=[_sudopass])
-        sleep(2)
-        _process = multiprocessing.Process(target=execute_command, args=(__ssh_connect__(), "walk"))
-        _process.start()
+    global _process
+    _process.terminate()
+    sleep(2)
+    connection.run(command, pty=True, watchers=[_sudopass])
+    sleep(2)
+    _process = multiprocessing.Process(target=execute_command, args=(get_ssh_connection(), "walk"))
+    _process.start()
 
 
 def switch(cmd):

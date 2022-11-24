@@ -14,22 +14,22 @@ def preprocess_landmarks(landmarks):
 
 
 def bounding_rect(image, landmarks):
-    image_width, image_height = image.shape[1], image.shape[0]
+    img_height, img_width = image.shape[:2]
     landmark_array = np.empty((0, 2), int)
     for _, landmark in enumerate(landmarks.landmark):
-        landmark_x = min(int(landmark.x * image_width), image_width - 1)
-        landmark_y = min(int(landmark.y * image_height), image_height - 1)
-
+        landmark_x = min(int(landmark.x * img_width), img_width - 1)
+        landmark_y = min(int(landmark.y * img_height), img_height - 1)
         landmark_point = [np.array((landmark_x, landmark_y))]
-
         landmark_array = np.append(landmark_array, landmark_point, axis=0)
-
     x, y, w, h = cv2.boundingRect(landmark_array)
-
     return (x, y, x + w, y + h)
 
+
 def get_nearest_hand(landmarks_lst):
-    mapped = list(map(lambda h: h.landmark[0].z, landmarks_lst))
+    def mapfunc(h): return np.linalg.norm([h.landmark[0].x - h.landmark[5].x,
+                                           h.landmark[0].y - h.landmark[5].y,
+                                           h.landmark[0].z - h.landmark[5].z])
+    mapped = list(map(mapfunc, landmarks_lst))
     idx = np.argmax(mapped)
     return landmarks_lst[idx]
 

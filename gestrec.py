@@ -86,8 +86,6 @@ while cap.isOpened():
         label = key - 48
 
     if results.multi_hand_landmarks:
-        # for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
-        #                                       results.multi_handedness):
 
         # process hand landmarks
         hand_landmarks = get_nearest_hand(results.multi_hand_landmarks)
@@ -123,6 +121,13 @@ while cap.isOpened():
                 cv2.putText(image, f'Confidence: {confidence:.3f}', (10, 65),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv2.LINE_AA)
 
+        # draw boundingbox
+        x, y, w, h = bounding_rect(image, hand_landmarks)
+        cv2.rectangle(image, (x, y), (w, h), (0, 0, 255), 1)
+        cv2.rectangle(image, (x, y), (w, y-22), (0, 0, 255), -1)
+        cv2.putText(image, 'Tracking', (x + 5, y - 4),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
+
         # draw hands
         for hand_landmarks in results.multi_hand_landmarks:
             mp_drawing.draw_landmarks(
@@ -131,14 +136,6 @@ while cap.isOpened():
                 mp_hands.HAND_CONNECTIONS,
                 mp_drawing_styles.get_default_hand_landmarks_style(),
                 mp_drawing_styles.get_default_hand_connections_style())
-
-        # draw boundingbox
-        x, y, w, h = bounding_rect(image, hand_landmarks)
-        cv2.rectangle(image, (x,y), (w,h), (0, 0, 255), 1)
-        cv2.rectangle(image, (x,y), (w,y-22), (0, 0, 255), -1)
-        cv2.putText(image, 'Tracking', (x + 5, y - 4),
-               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
-
 
     # show capture
     cv2.imshow('MediaPipe Hands', image)
