@@ -4,9 +4,7 @@ from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog, QApplication, QStackedWidget, QWidget
 from commandexec import CommandExecutor, NoConnectionError
 from gestrec import Gestrec
-from auxillary_funcs.interprocess_comms import get_conn_client, MSG_GESTREC_OFF, MSG_GESTREC_ON, GESTREC_PORT
 
-from time import sleep
 
 ui_startwindow = 'ui/start_window.ui'
 ui_control_window = 'ui/control_window.ui'
@@ -23,12 +21,14 @@ class StartScreen(QDialog):
     def go_to_control(self):
         try:
             self.proc_commandexecutor = self.commandexecutor.connect_dog()
-        except TimeoutError as ex:
+        except NoConnectionError as ex:
             self.errorLabel.setText(ex.message)
 
     def close_app(self):
-        self.proc_commandexecutor.terminate()
-        sys.exit()
+        try:
+            self.proc_commandexecutor.terminate()
+        finally:
+            sys.exit()
 
 
 class ControlScreen(QDialog):

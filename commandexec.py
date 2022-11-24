@@ -30,7 +30,7 @@ class CommandExecutor():
             proc.start()
             return proc
         else:
-            raise NoConnectionError('Connection times out. Please check if Wifi is connected.')
+            raise NoConnectionError(message='Connection times out. Please check if Wifi is connected.')
 
     def execute_command(self, command):
         con = get_conn_client(COMMAND_PORT)
@@ -70,5 +70,6 @@ class CommandExecutor():
 
 
 class NoConnectionError(Exception):
-    def __init__(self, *args: object) -> None:
+    def __init__(self, message, *args: object) -> None:
         super().__init__(*args)
+        self.message = message
