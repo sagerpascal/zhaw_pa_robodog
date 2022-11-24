@@ -8,7 +8,7 @@ from multiprocessing.connection import Listener
 from threading import Thread
 
 from auxillary_funcs.ml import get_nearest_hand, preprocess_landmarks, write_csv, read_labels, bounding_rect
-from auxillary_funcs.interprocess_comms import get_conn_listener, get_conn_client, MSG_GESTREC_OFF, MSG_GESTREC_ON, DEFAULTPORT
+from auxillary_funcs.interprocess_comms import get_conn_listener, get_conn_client, MSG_GESTREC_OFF, MSG_GESTREC_ON, GESTREC_PORT
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
@@ -42,7 +42,7 @@ class Gestrec():
         self.cv_cap_source = 0  # 0 == default device
 
     def __start_listener__(self):
-        listener = get_conn_listener(DEFAULTPORT)
+        listener = get_conn_listener(GESTREC_PORT)
         while True:
             con = listener.accept()
             msg = con.recv()
@@ -63,12 +63,12 @@ class Gestrec():
         self._proc.terminate()
 
     def gestrec_on(self):
-        con = get_conn_client(DEFAULTPORT)
+        con = get_conn_client(GESTREC_PORT)
         con.send(MSG_GESTREC_ON)
         con.close()
 
     def gestrec_off(self):
-        con = get_conn_client(DEFAULTPORT)
+        con = get_conn_client(GESTREC_PORT)
         con.send(MSG_GESTREC_OFF)
         con.close()
 

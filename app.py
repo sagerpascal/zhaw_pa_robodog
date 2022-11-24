@@ -2,9 +2,9 @@ import os
 import sys
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog, QApplication, QStackedWidget, QWidget
-from auxillary_funcs.ssh_access import check_connection
+from commandexec import CommandExecutor, NoConnectionError
 from gestrec import Gestrec
-from auxillary_funcs.interprocess_comms import get_conn_client, MSG_GESTREC_OFF, MSG_GESTREC_ON, DEFAULTPORT
+from auxillary_funcs.interprocess_comms import get_conn_client, MSG_GESTREC_OFF, MSG_GESTREC_ON, GESTREC_PORT
 
 from time import sleep
 
@@ -18,17 +18,16 @@ class StartScreen(QDialog):
         loadUi(ui_startwindow, self)
         self.connectButton.clicked.connect(self.go_to_control)
         self.exitButton.clicked.connect(self.close_app)
+        self.commandexecutor = CommandExecutor()
 
     def go_to_control(self):
-        if check_connection():
-            control = ControlScreen()
-            widget.addWidget(control)
-            # ToDo: Implement connectivity check with robot. If it fails: Show label with error.
-            widget.setCurrentWidget(control)
-        else:
-            self.errorLabel.setText("Connection failed. Please check if Wifi is connected.")
+        try:
+            self.proc_commandexecutor = self.commandexecutor.connect_dog()
+        except TimeoutError as ex:
+            self.errorLabel.setText(ex.message)
 
     def close_app(self):
+        self.proc_commandexecutor.terminate()
         sys.exit()
 
 
@@ -58,8 +57,8 @@ class ControlScreen(QDialog):
 def start_ui():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QApplication(sys.argv)
-    # start = StartScreen()
-    start = ControlScreen()
+    start = StartScreen()
+    # start = ControlScreen()
     widget = QStackedWidget()
     widget.addWidget(start)
     widget.setFixedHeight(419)

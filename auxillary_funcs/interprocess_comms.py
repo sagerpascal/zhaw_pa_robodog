@@ -2,7 +2,8 @@ from multiprocessing.connection import Listener, Client
 
 ADDRESS = 'localhost'
 AUTHKEY = b'zhaw'
-DEFAULTPORT = 4444
+GESTREC_PORT = 4444
+COMMAND_PORT = 8888
 MSG_GESTREC_ON = 'gestrecon'
 MSG_GESTREC_OFF = 'gestrecoff'
 
