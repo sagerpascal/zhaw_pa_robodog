@@ -37,6 +37,8 @@ class ControlScreen(QDialog):
         self.activateButton.clicked.connect(self.start_recognition)
         self.stopButton.clicked.connect(self.stop_recognition)
         self.exitButton.clicked.connect(self.close_app)
+        self.sitButton.clicked.connect(self.sit_down)
+        self.standButton.clicked.connect(self.stand_up)
         Gestrec().start()
 
     def start_recognition(self):
@@ -46,6 +48,12 @@ class ControlScreen(QDialog):
     def stop_recognition(self):
         gestrec_off()
         self.recognitionLabel.setText("Gesture Recognition: off")
+
+    def sit_down(self):
+        pass
+
+    def stand_up(self):
+        pass
 
     def close_app(self):
         # commandexec_stop()
