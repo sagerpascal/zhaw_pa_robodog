@@ -19,8 +19,8 @@ _procs = []
 class CommandExecutor():
 
     def __init__(self) -> None:
-        self._sit_process = None
-        self._cmd_thread = None
+        self._sit_process = Process()
+        self._cmd_thread = Thread()
         self._sudopass = Responder(
             pattern=r'\[sudo\] password for unitree:',
             response='123\n')
@@ -36,12 +36,13 @@ class CommandExecutor():
 
     def __sit__(self):
         def sit_fun(): return get_ssh_connection().run(COMMAND_SIT, pty=True, watchers=[self._sudopass])
-        self._sit_process = Process(target=sit_fun)
-        self._sit_process.start()
+        if not self._sit_process.is_alive():
+            self._sit_process = Process(target=sit_fun)
+            self._sit_process.start()
 
     def __stand__(self):
-        self._sit_process.terminate()
-        self._sit_process = None
+        if self._sit_process.is_alive():
+            self._sit_process.terminate()
 
     def __exec_comnd__(self, command):
         if command == COMMAND_SIT:
