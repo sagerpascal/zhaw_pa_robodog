@@ -2,8 +2,8 @@ import os
 import sys
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog, QApplication, QStackedWidget, QWidget
-from commandexec import CommandExecutor, NoConnectionError
-from gestrec import Gestrec
+from commandexec import CommandExecutor, NoConnectionError, commandexec_stop
+from gestrec import Gestrec, gestrec_stop, gestrec_on, gestrec_off
 
 
 ui_startwindow = 'ui/start_window.ui'
@@ -16,17 +16,16 @@ class StartScreen(QDialog):
         loadUi(ui_startwindow, self)
         self.connectButton.clicked.connect(self.go_to_control)
         self.exitButton.clicked.connect(self.close_app)
-        self.commandexecutor = CommandExecutor()
 
     def go_to_control(self):
         try:
-            self.proc_commandexecutor = self.commandexecutor.connect_dog()
+            CommandExecutor().start()
         except NoConnectionError as ex:
             self.errorLabel.setText(ex.message)
 
     def close_app(self):
         try:
-            self.proc_commandexecutor.terminate()
+            commandexec_stop()
         finally:
             sys.exit()
 
@@ -38,27 +37,27 @@ class ControlScreen(QDialog):
         self.activateButton.clicked.connect(self.start_recognition)
         self.stopButton.clicked.connect(self.stop_recognition)
         self.exitButton.clicked.connect(self.close_app)
-        self.gestrec = Gestrec()
-        self.gestrec.start()
+        Gestrec().start()
 
     def start_recognition(self):
-        self.gestrec.gestrec_on()
+        gestrec_on()
         self.recognitionLabel.setText("Gesture Recognition: on ")
 
     def stop_recognition(self):
-        self.gestrec.gestrec_off()
+        gestrec_off()
         self.recognitionLabel.setText("Gesture Recognition: off")
 
     def close_app(self):
-        self.gestrec.stop()
+        # commandexec_stop()
+        gestrec_stop()
         sys.exit()
 
 
-def start_ui():
+def main():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QApplication(sys.argv)
     start = StartScreen()
-    # start = ControlScreen()
+    start = ControlScreen()
     widget = QStackedWidget()
     widget.addWidget(start)
     widget.setFixedHeight(419)
@@ -72,4 +71,4 @@ def start_ui():
 
 
 if __name__ == '__main__':
-    start_ui()
+    main()
