@@ -45,8 +45,6 @@ class Gestrec():
 
     def __start_listener__(self):
         listener = get_conn_listener(GESTREC_PORT)
-        print('gestrec thread proc')
-        print(current_process().pid)
         while True:
             con = listener.accept()
             msg = con.recv()
@@ -172,10 +170,6 @@ class Gestrec():
                         mp_drawing_styles.get_default_hand_connections_style())
 
             # show capture
-            # if self.model_active:
-                # print('gestrecon')
-            # else:
-                # print('gestrecoff')
 
             cv2.imshow('MediaPipe Hands', image)
 
