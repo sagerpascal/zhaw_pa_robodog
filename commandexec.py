@@ -26,10 +26,11 @@ class CommandExecutor():
             response='123\n')
 
     def start(self):
-        if check_connection():
+        if check_connection() or True:
             proc = Process(target=self.__start_listener__)
             _procs.append(proc)
             proc.start()
+            return proc
         else:
             raise NoConnectionError(message='Connection times out. Please check if Wifi is connected.')
 
@@ -48,10 +49,10 @@ class CommandExecutor():
         elif command == COMMAND_STAND:
             self.__stand__()
         else:
-            com, slp = command
             self.__stand__()
             sleep(2)
-            get_ssh_connection().run(com, pty=True, watchers=[self._sudopass])
+            get_ssh_connection().run(command, pty=True, watchers=[self._sudopass])
+            sleep(1)
             self.__sit__()
         sys.exit()
 

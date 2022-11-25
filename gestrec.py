@@ -61,6 +61,7 @@ class Gestrec():
         proc = Process(target=self.__start_cap_listener__)
         _procs.append(proc)
         proc.start()
+        return proc
 
     def __run_gestrec__(self):
         # video capture ################################################################################################
