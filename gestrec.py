@@ -45,7 +45,6 @@ class Gestrec():
 
         # processes
         self._cap_proc = None
-        self._lst_proc = None
 
     def __start_listener__(self):
         self._cap_proc = Process(target=self.__run_gestrec__)
