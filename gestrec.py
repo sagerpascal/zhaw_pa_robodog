@@ -3,21 +3,21 @@ from collections import deque
 import cv2
 import mediapipe as mp
 import numpy as np
-from multiprocessing import Process, current_process, parent_process, Lock
-from threading import Thread
+from multiprocessing import Process, current_process, Value
+import ctypes
 import sys
+from time import sleep
 
 from auxillary_funcs.ml import get_nearest_hand, preprocess_landmarks, write_csv, read_labels, bounding_rect
-from auxillary_funcs.interprocess_comms import get_conn_listener, get_conn_client, MSG_GESTREC_OFF, MSG_GESTREC_ON, GESTREC_PORT
+from auxillary_funcs.interprocess_comms import get_conn_listener, get_conn_client, GESTREC_PORT
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
 
-_GESTREC_ON = 'gestrecon'
-_GESTREC_OFF = 'gestrecoff'
-
-_procs = []
+_GESTREC_ON = 'on'
+_GESTREC_OFF = 'off'
+_GSTREC_STOP = 'stop'
 
 
 class Gestrec():
@@ -32,7 +32,7 @@ class Gestrec():
         self.model_min_confidence = 0.5
         self.model_path = './model/model.joblib'
         self.model_labels_path = './data/labels.txt'
-        self.model_active = False
+        self._model_active = Value(ctypes.c_bool, False)
 
         # development mode
         self.dev_data_path = 'data/data.csv'
@@ -43,24 +43,29 @@ class Gestrec():
         # self.cv_cap_source = 'http://192.168.123.12:8080/?action=stream'  # 0 == default device
         self.cv_cap_source = 0  # 0 == default device
 
+        # processes
+        self._cap_proc = None
+        self._lst_proc = None
+
     def __start_listener__(self):
+        self._cap_proc = Process(target=self.__run_gestrec__)
+        self._cap_proc.start()
         listener = get_conn_listener(GESTREC_PORT)
         while True:
             con = listener.accept()
             msg = con.recv()
-            if msg == _GESTREC_OFF:
-                self.model_active = False
+            if msg == _GSTREC_STOP:
+                self._cap_proc.terminate()
+                sys.exit()
+            elif msg == _GESTREC_OFF:
+                self._model_active.value = False
             elif msg == _GESTREC_ON:
-                self.model_active = True
-
-    def __start_cap_listener__(self):
-        Thread(target=self.__start_listener__).start()
-        self.__run_gestrec__()
+                self._model_active.value = True
 
     def start(self):
-        proc = Process(target=self.__start_cap_listener__)
-        _procs.append(proc)
+        proc = Process(target=self.__start_listener__)
         proc.start()
+        sleep(1)
         return proc
 
     def __run_gestrec__(self):
@@ -135,7 +140,7 @@ class Gestrec():
                         label = -1
 
                 # predict gesture using model
-                if not self.dev_mode and self.model_active and len(land_q) == land_q.maxlen:
+                if not self.dev_mode and self._model_active and len(land_q) == land_q.maxlen:
                     predict_result = np.squeeze(model.predict_proba(np.array(land_q).reshape(1, -1)))
                     idx = np.argmax(predict_result)
                     gesture, confidence = labels[idx], predict_result[idx]
@@ -171,8 +176,10 @@ class Gestrec():
                         mp_drawing_styles.get_default_hand_connections_style())
 
             # show capture
-
             cv2.imshow('MediaPipe Hands', image)
+            print('hello from cap proc')
+            print(current_process())
+            print(self._model_active.value)
 
 
 def __send_command__(command):
@@ -182,18 +189,23 @@ def __send_command__(command):
 
 
 def gestrec_stop():
-    for proc in _procs:
-        proc.terminate()
+    __send_command__(_GSTREC_STOP)
 
 
 def gestrec_on():
-    __send_command__(MSG_GESTREC_ON)
+    __send_command__(_GESTREC_ON)
 
 
 def gestrec_off():
-    __send_command__(MSG_GESTREC_OFF)
+    __send_command__(_GESTREC_OFF)
 
 
 if __name__ == '__main__':
     gestrec = Gestrec()
     gestrec.start()
+    sleep(5)
+    gestrec_on()
+    sleep(5)
+    gestrec_off()
+    sleep(3)
+    gestrec_stop()

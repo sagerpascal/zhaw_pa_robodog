@@ -1,48 +1,47 @@
 from invoke import Responder
-from fabric import Connection
 from time import sleep
-from multiprocessing import Process, current_process
+from multiprocessing import Process
 from threading import Thread
-import subprocess
 import sys
 
-from auxillary_funcs.ssh_access import get_ssh_connection, check_connection
+from auxillary_funcs.ssh_access import get_ssh_connection, check_connection, NoConnectionError
 from auxillary_funcs.interprocess_comms import get_conn_listener, get_conn_client, COMMAND_PORT
 
 COMMAND_SIT = 'sudo ./sit.sh'
 COMMAND_STAND = 'sudo ./stand.sh'
 COMMAND_WALK = 'sudo ./walk.sh'
 
-_procs = []
+_COMMAND_STOP = 'stop'
+
+_sudopass = Responder(
+    pattern=r'\[sudo\] password for unitree:',
+    response='123\n')
 
 
 class CommandExecutor():
 
     def __init__(self) -> None:
-        self._sit_process = Process()
-        self._cmd_thread = Thread()
-        self._sudopass = Responder(
-            pattern=r'\[sudo\] password for unitree:',
-            response='123\n')
+        self._sit_proc = None
+        self._cmd_thrd = None
 
     def start(self):
-        if check_connection() or True:
+        if check_connection():
             proc = Process(target=self.__start_listener__)
-            _procs.append(proc)
             proc.start()
+            sleep(1)
             return proc
         else:
             raise NoConnectionError(message='Connection times out. Please check if Wifi is connected.')
 
     def __sit__(self):
-        def sit_fun(): return get_ssh_connection().run(COMMAND_SIT, pty=True, watchers=[self._sudopass])
-        if not self._sit_process.is_alive():
-            self._sit_process = Process(target=sit_fun)
-            self._sit_process.start()
+        def sit_fun(): return get_ssh_connection().run(COMMAND_SIT, pty=True, watchers=[_sudopass])
+        if self._sit_proc is None or not self._sit_proc.is_alive():
+            self._sit_proc = Process(target=sit_fun)
+            self._sit_proc.start()
 
     def __stand__(self):
-        if self._sit_process.is_alive():
-            self._sit_process.terminate()
+        if self._sit_proc is not None and self._sit_proc.is_alive():
+            self._sit_proc.terminate()
 
     def __exec_comnd__(self, command):
         if command == COMMAND_SIT:
@@ -52,7 +51,7 @@ class CommandExecutor():
         else:
             self.__stand__()
             sleep(2)
-            get_ssh_connection().run(command, pty=True, watchers=[self._sudopass])
+            get_ssh_connection().run(command, pty=True, watchers=[_sudopass])
             sleep(1)
             self.__sit__()
         sys.exit()
@@ -62,9 +61,14 @@ class CommandExecutor():
         while True:
             con = listener.accept()
             msg = con.recv()
-            if not self._cmd_thread.is_alive():
-                self._cmd_thread = Thread(target=self.__exec_comnd__, args=(msg,), deamon=True)
-                self._cmd_thread.start()
+            if msg == _COMMAND_STOP:
+                try:
+                    self._cmd_thrd.terminate()
+                finally:
+                    sys.exit()
+            if self._cmd_thrd is None or not self._cmd_thrd.is_alive():
+                self._cmd_thrd = Thread(target=self.__exec_comnd__, args=(msg,))
+                self._cmd_thrd.start()
 
 
 def execute_command(command):
@@ -74,11 +78,4 @@ def execute_command(command):
 
 
 def commandexec_stop():
-    for proc in _procs:
-        proc.terminate()
-
-
-class NoConnectionError(Exception):
-    def __init__(self, message, *args: object) -> None:
-        super().__init__(*args)
-        self.message = message
+    execute_command(_COMMAND_STOP)

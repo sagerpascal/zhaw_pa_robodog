@@ -13,3 +13,9 @@ def check_connection():
 def get_ssh_connection():
     c = Connection(host='192.168.123.12', user='unitree', connect_kwargs={"password": "123"})
     return c
+
+
+class NoConnectionError(Exception):
+    def __init__(self, message, *args: object) -> None:
+        super().__init__(*args)
+        self.message = message
