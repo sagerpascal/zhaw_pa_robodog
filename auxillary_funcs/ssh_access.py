@@ -1,17 +1,20 @@
-from invoke import Responder
-from fabric import Connection, Config
-from time import sleep
-import multiprocessing
+from paramiko import SSHClient, AutoAddPolicy
 import subprocess
+
+host_ip = '192.168.123.12'
+username = 'unitree'
+password = '123'
 
 
 def check_connection():
-    command = ['ping', '-c', '1', '192.168.123.12']
+    command = ['ping', '-c', '1', host_ip]
     return subprocess.call(command) == 0
 
 
 def get_ssh_connection():
-    c = Connection(host='192.168.123.12', user='unitree', connect_kwargs={"password": "123"})
+    c = SSHClient()
+    c.set_missing_host_key_policy(AutoAddPolicy())
+    c.connect(hostname=host_ip, username=username, password=password, )
     return c
 
 

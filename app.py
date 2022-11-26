@@ -2,12 +2,18 @@ import os
 import sys
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QDialog, QApplication, QStackedWidget, QWidget
-from commandexec import CommandExecutor, NoConnectionError, commandexec_stop
+from commandexec import CommandExecutor, NoConnectionError, commandexec_stop, execute_command, COMMAND_SIT, COMMAND_STAND
 from gestrec import Gestrec, gestrec_stop, gestrec_on, gestrec_off
-
 
 ui_startwindow = 'ui/start_window.ui'
 ui_control_window = 'ui/control_window.ui'
+
+commandexec = CommandExecutor()
+gesterc = Gestrec()
+
+
+def start_comandex():
+    print('bla')
 
 
 class StartScreen(QDialog):
@@ -19,15 +25,16 @@ class StartScreen(QDialog):
 
     def go_to_control(self):
         try:
-            CommandExecutor().start()
+            commandexec.start()
+            control = ControlScreen()
+            widget.addWidget(control)
+            widget.setCurrentWidget(control)
         except NoConnectionError as ex:
             self.errorLabel.setText(ex.message)
 
     def close_app(self):
-        try:
-            commandexec_stop()
-        finally:
-            sys.exit()
+        commandexec_stop()
+        sys.exit()
 
 
 class ControlScreen(QDialog):
@@ -39,7 +46,7 @@ class ControlScreen(QDialog):
         self.exitButton.clicked.connect(self.close_app)
         self.sitButton.clicked.connect(self.sit_down)
         self.standButton.clicked.connect(self.stand_up)
-        Gestrec().start()
+        gesterc.start()
 
     def start_recognition(self):
         gestrec_on()
@@ -50,22 +57,21 @@ class ControlScreen(QDialog):
         self.recognitionLabel.setText("Gesture Recognition: off")
 
     def sit_down(self):
-        pass
+        execute_command(COMMAND_SIT)
 
     def stand_up(self):
-        pass
+        execute_command(COMMAND_STAND)
 
     def close_app(self):
-        # commandexec_stop()
+        commandexec_stop()
         gestrec_stop()
         sys.exit()
 
 
-def main():
+if __name__ == '__main__':
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QApplication(sys.argv)
     start = StartScreen()
-    start = ControlScreen()
     widget = QStackedWidget()
     widget.addWidget(start)
     widget.setFixedHeight(419)
@@ -76,7 +82,3 @@ def main():
         sys.exit(app.exec())
     except:
         print("Exiting")
-
-
-if __name__ == '__main__':
-    main()

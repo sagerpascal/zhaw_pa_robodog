@@ -40,8 +40,8 @@ class Gestrec():
 
         # openCV
         self.cv_cap_flip = True
-        # self.cv_cap_source = 'http://192.168.123.12:8080/?action=stream'  # 0 == default device
         self.cv_cap_source = 0  # 0 == default device
+        self.cv_cap_source = 'http://192.168.123.12:8080/?action=stream'  # 0 == default device
 
         # processes
         self._cap_proc = None
@@ -176,9 +176,6 @@ class Gestrec():
 
             # show capture
             cv2.imshow('MediaPipe Hands', image)
-            print('hello from cap proc')
-            print(current_process())
-            print(self._model_active.value)
 
 
 def __send_command__(command):
@@ -197,14 +194,3 @@ def gestrec_on():
 
 def gestrec_off():
     __send_command__(_GESTREC_OFF)
-
-
-if __name__ == '__main__':
-    gestrec = Gestrec()
-    gestrec.start()
-    sleep(5)
-    gestrec_on()
-    sleep(5)
-    gestrec_off()
-    sleep(3)
-    gestrec_stop()

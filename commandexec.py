@@ -1,28 +1,22 @@
 from invoke import Responder
 from time import sleep
 from multiprocessing import Process
-from threading import Thread
+from threading import Thread, Event
 import sys
 
 from auxillary_funcs.ssh_access import get_ssh_connection, check_connection, NoConnectionError
 from auxillary_funcs.interprocess_comms import get_conn_listener, get_conn_client, COMMAND_PORT
 
-COMMAND_SIT = 'sudo ./sit.sh'
-COMMAND_STAND = 'sudo ./stand.sh'
-COMMAND_WALK = 'sudo ./walk.sh'
+
+COMMAND_SIT = './sit.sh'
+COMMAND_STAND = 'rise'
+COMMAND_WALK = './walk.sh'
+COMMAND_WIGGLE = './wiggle.sh'
 
 _COMMAND_STOP = 'stop'
 
-_sudopass = Responder(
-    pattern=r'\[sudo\] password for unitree:',
-    response='123\n')
-
 
 class CommandExecutor():
-
-    def __init__(self) -> None:
-        self._sit_proc = None
-        self._cmd_thrd = None
 
     def start(self):
         if check_connection():
@@ -33,41 +27,51 @@ class CommandExecutor():
         else:
             raise NoConnectionError(message='Connection times out. Please check if Wifi is connected.')
 
+    def __sit_func__(self):
+        c = get_ssh_connection()
+        c.exec_command(COMMAND_SIT)
+        self._sit_stop.wait()
+        c.close()
+
     def __sit__(self):
-        def sit_fun(): return get_ssh_connection().run(COMMAND_SIT, pty=True, watchers=[_sudopass])
-        if self._sit_proc is None or not self._sit_proc.is_alive():
-            self._sit_proc = Process(target=sit_fun)
-            self._sit_proc.start()
+        if not self._sit_thrd.is_alive():
+            self._sit_stop.clear()
+            self._sit_thrd = Thread(target=self.__sit_func__)
+            self._sit_thrd.daemon = True
+            self._sit_thrd.start()
 
     def __stand__(self):
-        if self._sit_proc is not None and self._sit_proc.is_alive():
-            self._sit_proc.terminate()
+        if self._sit_thrd.is_alive():
+            self._sit_stop.set()
 
     def __exec_comnd__(self, command):
-        if command == COMMAND_SIT:
-            self.__sit__()
-        elif command == COMMAND_STAND:
-            self.__stand__()
-        else:
-            self.__stand__()
-            sleep(2)
-            get_ssh_connection().run(command, pty=True, watchers=[_sudopass])
-            sleep(1)
-            self.__sit__()
-        sys.exit()
+        self.__stand__()
+        sleep(2)
+        c = get_ssh_connection()
+        _, stdout, _ = c.exec_command(command)
+        stdout.channel.recv_exit_status()
+        c.close()
+        sleep(1)
+        self.__sit__()
+        sleep(3)
 
     def __start_listener__(self):
         listener = get_conn_listener(COMMAND_PORT)
+        self._cmd_thrd = Thread()
+        self._sit_thrd = Thread()
+        self._sit_stop = Event()
         while True:
             con = listener.accept()
             msg = con.recv()
             if msg == _COMMAND_STOP:
-                try:
-                    self._cmd_thrd.terminate()
-                finally:
-                    sys.exit()
-            if self._cmd_thrd is None or not self._cmd_thrd.is_alive():
+                sys.exit()
+            elif msg == COMMAND_SIT:
+                self.__sit__()
+            elif msg == COMMAND_STAND:
+                self.__stand__()
+            elif (not self._cmd_thrd.is_alive()) and (self._sit_thrd.is_alive()):
                 self._cmd_thrd = Thread(target=self.__exec_comnd__, args=(msg,))
+                self._cmd_thrd.daemon = True
                 self._cmd_thrd.start()
 
 
