@@ -9,7 +9,6 @@ import re
 def preprocess_landmarks(landmarks):
     tmp_marks = map(lambda l: (l.x, l.y, l.z), landmarks.landmark)
     tmp_marks = np.array(list(chain.from_iterable(tmp_marks)))
-    bla = normalize(tmp_marks.reshape(1, -1)).flatten()
     return tmp_marks
 
 

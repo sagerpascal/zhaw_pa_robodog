@@ -12,10 +12,6 @@ commandexec = CommandExecutor()
 gesterc = Gestrec()
 
 
-def start_comandex():
-    print('bla')
-
-
 class StartScreen(QDialog):
     def __init__(self):
         super(StartScreen, self).__init__()
@@ -63,8 +59,8 @@ class ControlScreen(QDialog):
         execute_command(COMMAND_STAND)
 
     def close_app(self):
-        commandexec_stop()
         gestrec_stop()
+        commandexec_stop()
         sys.exit()
 
 
@@ -72,6 +68,7 @@ if __name__ == '__main__':
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app = QApplication(sys.argv)
     start = StartScreen()
+    # start = ControlScreen()
     widget = QStackedWidget()
     widget.addWidget(start)
     widget.setFixedHeight(419)

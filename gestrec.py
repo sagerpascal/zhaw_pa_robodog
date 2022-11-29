@@ -3,10 +3,12 @@ from collections import deque
 import cv2
 import mediapipe as mp
 import numpy as np
-from multiprocessing import Process, current_process, Value
+from multiprocessing import Process, Value
 import ctypes
 import sys
 from time import sleep
+from tensorflow.keras.models import load_model
+from commandexec import COMMAND_WALK, COMMAND_WIGGLE, execute_command
 
 from auxillary_funcs.ml import get_nearest_hand, preprocess_landmarks, write_csv, read_labels, bounding_rect
 from auxillary_funcs.interprocess_comms import get_conn_listener, get_conn_client, GESTREC_PORT
@@ -19,24 +21,29 @@ _GESTREC_ON = 'on'
 _GESTREC_OFF = 'off'
 _GSTREC_STOP = 'stop'
 
+_COMMANDS_DICT = {
+    1: COMMAND_WIGGLE,
+    2: COMMAND_WALK
+}
+
 
 class Gestrec():
 
     def __init__(self) -> None:
         # mediapipe
         self.mediapipe_model_complexity = 1
-        self.mediapipe_min_detection_confidence = 0.5
-        self.mediapipe_min_tracking_confidence = 0.5
+        self.mediapipe_min_detection_confidence = 0.8
+        self.mediapipe_min_tracking_confidence = 0.8
 
         # model
-        self.model_min_confidence = 0.5
-        self.model_path = './model/model.joblib'
+        self.model_min_confidence = 0.8
+        self.model_path = './model/logmod.pkl'
         self.model_labels_path = './data/labels.txt'
         self._model_active = Value(ctypes.c_bool, False)
 
         # development mode
         self.dev_data_path = 'data/data.csv'
-        self.dev_mode = True
+        self.dev_mode = False
 
         # openCV
         self.cv_cap_flip = True
@@ -86,7 +93,6 @@ class Gestrec():
         land_q = deque(maxlen=32)
 
         # ml model #####################################################################################################
-
         model = joblib.load(self.model_path) if not self.dev_mode else None
         labels = read_labels(self.model_labels_path) if not self.dev_mode else None
 
@@ -139,18 +145,21 @@ class Gestrec():
                         label = -1
 
                 # predict gesture using model
-                if not self.dev_mode and self._model_active and len(land_q) == land_q.maxlen:
+                if not self.dev_mode and self._model_active.value and len(land_q) == land_q.maxlen:
                     predict_result = np.squeeze(model.predict_proba(np.array(land_q).reshape(1, -1)))
                     idx = np.argmax(predict_result)
                     gesture, confidence = labels[idx], predict_result[idx]
-                    if confidence >= self.model_min_confidence:
+                    if idx != 0:
+                        if confidence >= self.model_min_confidence:
+                            # execute command
+                            execute_command(_COMMANDS_DICT[idx])
                         # print text to image
                         cv2.putText(
-                            image, f'Gesture: {labels[idx]}', (10, 30),
+                            image, f'Gesture: {gesture}', (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0),
                             4, cv2.LINE_AA)
                         cv2.putText(
-                            image, f'Gesture: {labels[idx]}', (10, 30),
+                            image, f'Gesture: {gesture}', (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255),
                             2, cv2.LINE_AA)
                         cv2.putText(image, f'Confidence: {confidence:.3f}', (10, 65),

@@ -1,8 +1,0 @@
-0 = wave_hand
-1 = clockwise_rotation
-2 = counterclockwise_rotation
-3 = down
-4 = up
-5 = right
-6 = left
-7 = walk
