@@ -7,8 +7,7 @@ from multiprocessing import Process, Value
 import ctypes
 import sys
 from time import sleep
-from tensorflow.keras.models import load_model
-from commandexec import COMMAND_WALK, COMMAND_WIGGLE, execute_command
+from commandexec import COMMAND_WALK, COMMAND_WIGGLE, COMMAND_DOWN, COMMAND_SPIN, execute_command
 
 from auxillary_funcs.ml import get_nearest_hand, preprocess_landmarks, write_csv, read_labels, bounding_rect
 from auxillary_funcs.interprocess_comms import get_conn_listener, get_conn_client, GESTREC_PORT
@@ -23,7 +22,9 @@ _GSTREC_STOP = 'stop'
 
 _COMMANDS_DICT = {
     1: COMMAND_WIGGLE,
-    2: COMMAND_WALK
+    2: COMMAND_WALK,
+    3: COMMAND_DOWN,
+    4: COMMAND_SPIN
 }
 
 
@@ -31,12 +32,12 @@ class Gestrec():
 
     def __init__(self) -> None:
         # mediapipe
-        self.mediapipe_model_complexity = 1
+        self.mediapipe_model_complexity = 0
         self.mediapipe_min_detection_confidence = 0.8
         self.mediapipe_min_tracking_confidence = 0.8
 
         # model
-        self.model_min_confidence = 0.8
+        self.model_min_confidence = 0.9
         self.model_path = './model/logmod.pkl'
         self.model_labels_path = './data/labels.txt'
         self._model_active = Value(ctypes.c_bool, False)
@@ -153,6 +154,7 @@ class Gestrec():
                         if confidence >= self.model_min_confidence:
                             # execute command
                             execute_command(_COMMANDS_DICT[idx])
+                            land_q.clear()
                         # print text to image
                         cv2.putText(
                             image, f'Gesture: {gesture}', (10, 30),

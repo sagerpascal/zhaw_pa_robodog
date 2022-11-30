@@ -1,4 +1,3 @@
-from sklearn.preprocessing import normalize
 import numpy as np
 import cv2
 from itertools import chain

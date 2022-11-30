@@ -1,4 +1,3 @@
-from invoke import Responder
 from time import sleep
 from multiprocessing import Process
 from threading import Thread, Event
@@ -12,6 +11,8 @@ COMMAND_SIT = './sit.sh'
 COMMAND_STAND = 'rise'
 COMMAND_WALK = './walk.sh'
 COMMAND_WIGGLE = './wiggle.sh'
+COMMAND_SPIN = './spin.sh'
+COMMAND_DOWN = './lie_down.sh'
 
 _COMMAND_STOP = 'stop'
 

@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 
 cap = cv2.VideoCapture('http://192.168.123.12:8080/?action=stream')
 
