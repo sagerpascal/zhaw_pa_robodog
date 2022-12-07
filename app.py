@@ -71,8 +71,8 @@ if __name__ == '__main__':
     # start = ControlScreen()
     widget = QStackedWidget()
     widget.addWidget(start)
-    widget.setFixedHeight(419)
-    widget.setFixedWidth(698)
+    widget.setFixedHeight(604)
+    widget.setFixedWidth(701)
     widget.show()
 
     try:

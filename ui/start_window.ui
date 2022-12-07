@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>698</width>
-    <height>419</height>
+    <width>701</width>
+    <height>604</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,8 +71,8 @@ font: 9pt &quot;MS Shell Dlg 2&quot;;</string>
    <widget class="QPushButton" name="exitButton">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>370</y>
+      <x>40</x>
+      <y>540</y>
       <width>141</width>
       <height>31</height>
      </rect>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>698</width>
-    <height>419</height>
+    <width>701</width>
+    <height>604</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgb
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: rgb(255, 255, 255);
+     <string notr="true">color: rgb(255, 255, 255); 
 font: 75 20pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
@@ -52,7 +52,7 @@ font: 75 20pt &quot;MS Shell Dlg 2&quot;;</string>
    <widget class="QPushButton" name="activateButton">
     <property name="geometry">
      <rect>
-      <x>198</x>
+      <x>280</x>
       <y>200</y>
       <width>141</width>
       <height>31</height>
@@ -72,7 +72,7 @@ font: 9pt &quot;MS Shell Dlg 2&quot;;</string>
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>370</y>
+      <y>540</y>
       <width>141</width>
       <height>31</height>
      </rect>
@@ -90,7 +90,7 @@ font: 9pt &quot;MS Shell Dlg 2&quot;;</string>
    <widget class="QPushButton" name="stopButton">
     <property name="geometry">
      <rect>
-      <x>198</x>
+      <x>280</x>
       <y>250</y>
       <width>141</width>
       <height>31</height>
@@ -116,7 +116,7 @@ font: 9pt &quot;MS Shell Dlg 2&quot;;</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: rgb(255, 255, 255);
+     <string notr="true">color: rgb(255, 255, 255); 
 font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
@@ -129,46 +129,168 @@ font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="sitButton">
+   <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>359</x>
-      <y>250</y>
-      <width>141</width>
-      <height>31</height>
+      <x>320</x>
+      <y>310</y>
+      <width>61</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-radius: 10px;
-background-color: rgb(254, 182, 56);
-color: rgb(255, 255, 255);
-font: 9pt &quot;MS Shell Dlg 2&quot;;</string>
+     <string notr="true">color: rgb(255, 255, 255); 
+font: 75 12pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
-     <string>Sit</string>
+     <string>Gestures:</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="standButton">
+   <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>359</x>
-      <y>200</y>
-      <width>141</width>
-      <height>31</height>
+      <x>110</x>
+      <y>360</y>
+      <width>61</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">border-radius: 10px;
-background-color: rgb(170, 170, 127);
-color: rgb(255, 255, 255);
-font: 9pt &quot;MS Shell Dlg 2&quot;;</string>
+     <string notr="true">font: 75 11pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
-     <string>Stand</string>
+     <string>1. Wiggle</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>360</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 11pt &quot;MS Shell Dlg 2&quot;;</string>
+    </property>
+    <property name="text">
+     <string>2. Bounce</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>360</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 11pt &quot;MS Shell Dlg 2&quot;;</string>
+    </property>
+    <property name="text">
+     <string>3. Walk</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>360</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 11pt &quot;MS Shell Dlg 2&quot;;</string>
+    </property>
+    <property name="text">
+     <string>4. Spin</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>390</y>
+      <width>141</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">image: url(:/newPrefix/hand_walk.jpg);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>390</y>
+      <width>141</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">image: url(:/newPrefix/hand_wave.jpg);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>440</y>
+      <width>43</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>390</y>
+      <width>141</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">image: url(:/newPrefix/hand_spin.jpg);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>390</y>
+      <width>141</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">image: url(:/newPrefix/hand_updown.jpg);</string>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>
