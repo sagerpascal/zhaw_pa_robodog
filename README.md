@@ -7,14 +7,24 @@ Clone this repository and create a [conda](https://docs.conda.io/projects/conda/
 ````bash
 conda create -n robodog python
 conda activate robodog
-pip install -r requirements.txt
+
+````
+on Windows:
+````bash
+python -m pip install -r C:\path\to\requirements.txt
+````
+
+on MacOS:
+````bash
+pip install -r path\to\requirements.txt
 ````
 
 ## Connect to the robodog
 
 1. Start the robot
 2. Connect to the A1's WIFI hotspot: The SSID of the Wifi network of A1's hot-spot begins with UnitreeRoboticsA1 and the default password is 00000000.
-3. Open a terminal and connect to the robot with ssh -X unitree@192.168.123.12. Enter the password 123. This is important as it adds the robot to the known hosts.
+3. Open a terminal and connect to the robot with ssh -X unitree@192.168.123.12. Enter the password 
+4. This is important as it adds the robot to the known hosts.
 5. Start the UI (app.py) and connect to the robot
 6. Press on sit and activate gesture recognition
 
