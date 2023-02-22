@@ -5,7 +5,7 @@ Project Thesis from Martin Oswald and Tenzin Langdun at Zürich University of Ap
 Clone this repository and create a [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) environment:
 
 ````bash
-conda create -n robodog python
+conda create -n robodog python=3.9
 conda activate robodog
 
 ````
