@@ -1,5 +1,5 @@
 # PA Robodog
-Bachelor thesis from Juri Pfammatter and Daniel Schweizer based on the project thesis from Martin Oswald and Tenzin Langdun at Zürich University of Applied Science.
+Bachelor thesis from Juri Pfammatter and Daniel Schweizer based on the project thesis from Martin Oswald and Tenzin Langdun at Zürich University of Applied Science, Winterthur.
 
 ## Setup the environment
 Clone this repository and create a [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) environment:
